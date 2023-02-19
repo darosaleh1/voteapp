@@ -1,19 +1,14 @@
-import { CreateTheme, NextUIProvider } from "@nextui-org/react"
-// import 'sf-font';
-import Link from "next/link";
-import {Spacer, Button, Col, Row, Container, Dropdown} from "@nextui-org/react"
-import react from "react";
+import { PollingProvider } from "@/context/pollProvider";
+import React from "react";
 
-// INTERNAL IMPORT
-
-import { pollProvider } from "@/context/pollApp";
 
 const App = ({ Component, pageProps }) => (
-  <pollProvider>
-    <div>
-    <Component {...pageProps} />;
-    </div>
-  </pollProvider>
+  <PollingProvider>
+  <div>
+      <Component {...pageProps} />
+  </div>
+  </PollingProvider>
+
 );
 
-export default App
+export default App;

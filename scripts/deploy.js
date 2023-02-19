@@ -6,7 +6,7 @@ async function main() {
 
 
   const Poll = await hre.ethers.getContractFactory("Poll");
-  const poll = await Poll.deploy() 
+  const poll = await Poll.deploy(10000) 
 
   await poll.deployed();
 

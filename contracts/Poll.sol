@@ -4,39 +4,26 @@ pragma solidity ^0.8.9;
 contract Poll {
 
 
-    // Group
-    // Group (creator )
-    // add to group
-    // request to join
-    // Create Poll
-
-
-    // struct Voter {
-    //     bool voted; // check to see if voter has already voted
-    //     address user;
-
-    // }
-
     struct Option {
-        uint pollId;
+        uint optionId;
         string title;
         uint256 votes;
     }
 
     mapping(address => bool) public voters;
     uint256 totalVotes;
-
     mapping(uint => Option) public options;
-
     uint public optionsCount;
+    uint public deadline;
 
     event votedEvent (
         uint indexed _OptionId
     );
 
-    constructor () {
+    constructor (uint _duration) {
         addOption("Option 1");
         addOption("Option 2");
+        deadline = block.timestamp + (_duration * 1 minutes);
     }
 
     function addOption (string memory _name) private {
@@ -56,11 +43,10 @@ contract Poll {
         emit votedEvent(_optionId);
     }
 
-}
-    // function computeWinner() public view  {
-    //     if (totalVotes > 0){
-    //         return (Poll.title)
-    //     }
-    // } 
+    // function getWinner() external view returns (string[]memory)
 
+    function pollHasEnded() external view returns (bool) {
+        return block.timestamp >= deadline;
+    }
+}
     
