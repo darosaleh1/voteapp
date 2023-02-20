@@ -1,12 +1,17 @@
   import React, {useEffect, useContext, useState} from 'react'
 
-  import { PollingContext } from '@/context/pollProvider';
+  import { PollingContext } from '@/context/Poll';
 
   // Internal Import
   import { ethers } from 'ethers';
   
   const index = () => {
-    const {pollTitle} = useContext(PollingContext)
+    const {pollTitle, checkIfConnected} = useContext(PollingContext)
+
+    useEffect(() => {
+      checkIfConnected();
+    }, [])
+    
     return (
       <div>{pollTitle}</div>
     )

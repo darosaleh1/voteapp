@@ -1,13 +1,13 @@
-import { PollingProvider } from "@/context/pollProvider";
+import { PollProvider } from "@/context/Poll";
 import React from "react";
 
 
 const App = ({ Component, pageProps }) => (
-  <PollingProvider>
+  <PollProvider>
   <div>
       <Component {...pageProps} />
   </div>
-  </PollingProvider>
+  </PollProvider>
 
 );
 
