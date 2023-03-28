@@ -20,10 +20,14 @@ contract Poll {
         uint indexed _OptionId
     );
 
-    constructor (uint _duration) {
+    constructor (uint pollDuration) {
         addOption("Option 1");
         addOption("Option 2");
-        deadline = block.timestamp + (_duration * 1 minutes);
+        deadline = block.timestamp + (pollDuration * 1 minutes);
+    }
+
+    function displayDeadline() public view returns (uint)  {
+        return deadline;
     }
 
     function addOption (string memory _name) private {
@@ -43,7 +47,6 @@ contract Poll {
         emit votedEvent(_optionId);
     }
 
-    // function getWinner() external view returns (string[]memory)
 
     function pollHasEnded() external view returns (bool) {
         return block.timestamp >= deadline;

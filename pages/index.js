@@ -1,19 +1,22 @@
   import React, {useEffect, useContext, useState} from 'react'
-
-  import { PollingContext } from '@/context/Poll';
+  import GroupList from '@/components/GroupList';
+  
 
   // Internal Import
   import { ethers } from 'ethers';
+import { VoteAppContext } from '@/context/VoteGroup';
   
   const index = () => {
-    const {pollTitle, checkIfConnected} = useContext(PollingContext)
+    const {pollTitle, checkIfConnected,createPoll, createGroup} = useContext(VoteAppContext)
 
     useEffect(() => {
       checkIfConnected();
     }, [])
     
     return (
-      <div>{pollTitle}</div>
+      <div>{pollTitle} <button onClick={createPoll}>Create Poll</button>
+      <GroupList />
+      </div>
     )
   }
   

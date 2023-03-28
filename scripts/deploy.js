@@ -1,25 +1,18 @@
-
 const hre = require("hardhat");
 
 async function main() {
- 
+  const GroupFactory = await hre.ethers.getContractFactory("GroupFactory");
+  const groupFactory = await GroupFactory.deploy();
 
+  await groupFactory.deployed();
 
-  const Poll = await hre.ethers.getContractFactory("Poll");
-  const poll = await Poll.deploy(10000) 
-
-  await poll.deployed();
-
-  console.log(
-    `Lock with 1 ETH deployed to ${poll.address}`
-  );
-
-  console.log(poll);
+  console.log("GroupFactory deployed to:", groupFactory.address);
 }
 
-// We recommend this pattern to be able to use async/await everywhere
-// and properly handle errors.
-main().catch((error) => {
-  console.error(error);
-  process.exitCode = 1;
-});
+main()
+  .then(() => process.exit(0))
+  .catch((error) => {
+    console.error(error);
+    process.exit(1);
+  });
+
