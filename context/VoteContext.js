@@ -69,6 +69,27 @@ export const VoteAppProvider = ({children}) => {
   }, [currentAccount]);
 
   useEffect(() => {
+    if (window.ethereum) {
+      const handleAccountsChanged = (accounts) => {
+        if (accounts.length === 0) {
+          // The user disconnected their account or locked their wallet
+          setCurrentAccount('');
+        } else {
+          // The user connected a new account
+          setCurrentAccount(accounts[0]);
+        }
+      };
+
+      window.ethereum.on('accountsChanged', handleAccountsChanged);
+
+      return () => {
+        // Clean up the event listener when the component unmounts
+        window.ethereum.removeListener('accountsChanged', handleAccountsChanged);
+      };
+    }
+  }, []);
+
+  useEffect(() => {
     if (currentAccount) {
       localStorage.setItem('currentAccount', currentAccount);
     } else {

@@ -1,10 +1,10 @@
 // components/Navbar.js
 import React, { useContext } from 'react';
-import styles from './Navbar.module.css';
 import { VoteAppContext } from '@/context/VoteContext';
+import styles from './Navbar.module.css';
 
 const Navbar = () => {
-  const { currentAccount, connectWallet, logout } = useContext(VoteAppContext);
+  const { currentAccount, connectWallet } = useContext(VoteAppContext);
 
   const handleLogout = () => {
     // Clear the current account
@@ -14,7 +14,7 @@ const Navbar = () => {
   return (
     <div className={styles.navbar}>
       {currentAccount && (
-        <button className={styles.logoutButton} onClick={logout}>
+        <button className={styles.logoutButton} onClick={handleLogout}>
           Logout
         </button>
       )}
@@ -23,3 +23,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+
