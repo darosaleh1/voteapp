@@ -1,0 +1,27 @@
+/* components/Navbar.module.css */
+.navbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px;
+  background-color: #0d1b2a; /* Match the background color */
+  border-bottom: 1px solid white; /* Add a white border */
+}
+
+.logoutButton {
+  font-size: 1.25rem;
+    padding: 0.5rem 1rem;
+    background-color: #0d1b2a; 
+    color: #fff;
+    border: 2px solid #fff;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+    border-radius: 25px;
+}
+
+.logoutButton:hover {
+  background-color: #fff;
+    color: #1a237e;
+    border-color: #1a237e;
+}
+
+  
