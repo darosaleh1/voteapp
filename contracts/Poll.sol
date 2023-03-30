@@ -37,6 +37,21 @@ contract Poll {
         pollData.votes[_optionIndex]++;
     }
 
+    function getOption(uint256 index) public view returns (string memory) {
+        require(index < pollData.options.length, "Invalid option index.");
+        return pollData.options[index];
+    }
+    function getVoteCount(uint256 _optionIndex) public view returns (uint256) {
+        return pollData.votes[_optionIndex];
+    }
+
+    function getUserVote(address _voterAddress) public view returns (uint256, bool) {
+        Vote memory userVote = pollData.userVotes[_voterAddress];
+        return (userVote.optionIndex, userVote.hasVoted);
+    }
+
+
+
 }
 
     

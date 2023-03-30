@@ -7,8 +7,8 @@ contract GroupFactory{
 
     address[] public createdGroups;
 
-    function createGroup(string memory _groupName, bool _isGroupPrivate, bytes32 _hashedPassword, bytes32 _salt) public {
-        Group newGroup = new Group(_groupName, _isGroupPrivate, _hashedPassword, _salt);
+    function createGroup(string memory _groupName, bool _isGroupPrivate, bytes32 _hashedPassword) public {
+        Group newGroup = new Group(_groupName, _isGroupPrivate, _hashedPassword);
         createdGroups.push(address(newGroup));
     }
 

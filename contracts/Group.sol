@@ -49,15 +49,24 @@ contract Group {
 
     }
 
+    function addMember(address _newMember) public {
+    require(members[msg.sender], "You must be a member of this group to add a member.");
+    require(!members[_newMember], "This person is already a member of the group!");
+    members[_newMember] = true;
+    memberCount++;
+    }
+
     function getGroupDetails() public view returns (string memory, bool) {
     return (groupName, isGroupPrivate);
     }
 
     function removeMember(address _memberAddress) public {
-        require(members[_memberAddress], "This person doesn't belong to the group!");
-        members[_memberAddress] = false;
-        memberCount--;
-    }
+    require(members[msg.sender], "Caller is not a member");
+    require(members[_memberAddress], "This person doesn't belong to the group!");
+    members[_memberAddress] = false;
+    memberCount--;
+}
+
 
     function checkPassword(bytes32 _hashedPassword) private view returns (bool) {
         return _hashedPassword == hashedPassword; 

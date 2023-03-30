@@ -6,9 +6,9 @@ import Group from "@/artifacts/contracts/Group.sol/Group.json"
 
 
 
-export const VoteAppContext = React.createContext();
+export const AuthContext = React.createContext();
 
-export const VoteAppProvider = ({children}) => {
+export const AuthProvider = ({children}) => {
   const [currentAccount, setCurrentAccount] = useState('');
   const [error, setError] = useState('');
   
@@ -99,13 +99,13 @@ export const VoteAppProvider = ({children}) => {
   
   // USE GROUP FACTORY
 
-  // const groupFactoryAddress = "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853";
+  // const groupFactoryAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
 
   return (
-    <VoteAppContext.Provider value={{connectWallet, currentAccount, logout}}>
+    <AuthContext.Provider value={{connectWallet, currentAccount, logout}}>
       {children}
-    </VoteAppContext.Provider>
+    </AuthContext.Provider>
   )
 };
 
-export default VoteAppProvider
+export default AuthProvider

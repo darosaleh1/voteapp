@@ -1,10 +1,10 @@
 import { useRouter } from 'next/router';
 import { useContext, useEffect } from 'react';
-import { VoteAppContext } from '@/context/VoteContext';
+import { AuthContext } from '@/context/AuthContext';
 
 const HomePage = () => {
   const router = useRouter();
-  const { currentAccount } = useContext(VoteAppContext);
+  const { currentAccount } = useContext(AuthContext);
 
   useEffect(() => {
     if (!currentAccount) {

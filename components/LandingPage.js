@@ -1,12 +1,12 @@
 // components/LandingPage.js
 import React, {useContext, useEffect} from 'react';
 import styles from './LandingPage.module.css';
-import { VoteAppContext } from '@/context/VoteContext';
+import { AuthContext } from '@/context/AuthContext';
 import { useRouter } from 'next/router';
   
 
 const LandingPage = () => {
-    const {connectWallet, checkIfConnected, currentAccount} = useContext(VoteAppContext)
+    const {connectWallet, checkIfConnected, currentAccount} = useContext(AuthContext)
     const router = useRouter();
 
     useEffect(() => {
