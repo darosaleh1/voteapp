@@ -1,5 +1,5 @@
-// pages/create-group.js
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
+import { GroupContext } from '@/context/GroupContext';
 import TextField from '@mui/material/TextField';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -21,9 +21,12 @@ const CreateGroup = () => {
   const [isPrivate, setIsPrivate] = useState(false);
   const [password, setPassword] = useState('');
 
-  const handleSubmit = (e) => {
+  const { createNewGroup } = useContext(GroupContext);
+
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Call the createGroup function from your smart contract here
+    await createNewGroup(groupName, isPrivate, password);
   };
 
   return (
