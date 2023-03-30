@@ -10,6 +10,7 @@ export const GroupProvider = ({ children }) => {
 
   const { currentAccount } = useContext(AuthContext);
   const [groups, setGroups] = useState([]);
+  const [userGroups, setUserGroups] = useState([]);
   const [groupFactoryContract, setGroupFactoryContract] = useState(null);
 
   // Initialize the contract
@@ -38,7 +39,7 @@ export const GroupProvider = ({ children }) => {
   };
 
   return (
-    <GroupContext.Provider value={{ createNewGroup }}>
+    <GroupContext.Provider value={{ createNewGroup, userGroups, setUserGroups }}>
       {children}
     </GroupContext.Provider>
   );

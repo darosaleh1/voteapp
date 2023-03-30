@@ -15,4 +15,5 @@ contract GroupFactory{
     function getDeployedGroups() public view returns (address[] memory) {
         return createdGroups;
     }
+
 }

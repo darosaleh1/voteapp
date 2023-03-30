@@ -114,14 +114,45 @@ describe("Group Contract", function () {
         ).to.be.revertedWith("You must be a member of this group to create a poll.");
       });
       
-      it("Should not allow a non-member to remove a member from the group", async function () {
-        // Add addr1 to the group
-        await group.connect(owner).addMember(addr1.address);
-        
-        await expect(
-          group.connect(addr2).removeMember(owner.address)
-        ).to.be.revertedWith("Caller is not a member");
-      });
+      it("Should allow the group creator to add a member", async function () {
+        // Owner adds addr1 to the group
+        await group.addMember(addr1.address);
+
+        // Check if addr1 is a member of the group
+        const isAddr1Member = await group.checkMembership(addr1.address);
+        expect(isAddr1Member).to.be.true;
+    });
+
+    it("Should not allow a non-group creator to add a member", async function () {
+      await expect(
+          group.connect(addr1).addMember(addr2.address)
+      ).to.be.revertedWith("You must be the group creator to add a member.");
+    });
+
+    it("Should allow the group creator to remove a member", async function () {
+      // addr1 joins the group
+      await group.connect(addr1).joinGroup("0x0000000000000000000000000000000000000000000000000000000000000000");
+
+      // Owner removes addr1 from the group
+      await group.removeMember(addr1.address);
+
+      // Check if addr1 is still a member of the group
+      const isAddr1Member = await group.checkMembership(addr1.address);
+      expect(isAddr1Member).to.be.false;
+  });
+
+  it("Should not allow a non-group creator to remove a member", async function () {
+    // addr1 joins the group
+    await group.connect(addr1).joinGroup("0x0000000000000000000000000000000000000000000000000000000000000000");
+
+    await expect(
+        group.connect(addr1).removeMember(addr1.address)
+    ).to.be.revertedWith("Caller is not the group creator");
+});
+
+
+      
+      
       
       
       
