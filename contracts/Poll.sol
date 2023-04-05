@@ -4,12 +4,15 @@ pragma solidity ^0.8.9;
 contract Poll {
     struct PollData {
         string question;
-        string[] options;
+        string option1;
+        string option2;
         uint256 endTime;
-        mapping(uint256 => uint256) votes; // optionIndex => voteCount
-        mapping(address => Vote) userVotes; // voterAddress => Vote
+        mapping(uint256 => uint256) votes;
+        mapping(address => Vote) userVotes;
+        mapping(uint256 => VoteDetails[]) voteDetails;
         bool hasEnded;
         address creator;
+        uint256 duration;
     }
 
     struct Vote {
@@ -17,31 +20,90 @@ contract Poll {
         bool hasVoted;
     }
 
+    struct VoteDetails {
+        address voter;
+        uint256 blockNumber;
+        uint256 blockTimestamp;
+    }
+
     PollData public pollData;
 
     constructor(address _creator, string memory _question, string memory _option1, string memory _option2, uint256 _duration) {
         pollData.creator = _creator;
         pollData.question = _question;
-        pollData.options.push(_option1);
-        pollData.options.push(_option2);
+        pollData.option1 = _option1;
+        pollData.option2 = _option2;
+        pollData.duration = _duration;
         pollData.endTime = block.timestamp + _duration;
+
+        pollData.votes[0] = 0;
+        pollData.votes[1] = 0;
+    }
+
+    function getOption(uint256 index) public view returns (string memory) {
+        require(index < 2, "Invalid option index!");
+        if (index == 0) {
+            return pollData.option1;
+        } else {
+            return pollData.option2;
+        }
+    }
+
+    function endPoll() public {
+        require(msg.sender == pollData.creator, "Only the poll creator can end the poll!");
+        require(block.timestamp > pollData.endTime, "The poll has not yet reached its end time!");
+        require(!pollData.hasEnded, "The poll has already been ended!");
+
+        pollData.hasEnded = true;
     }
 
     function vote(uint256 _optionIndex) public {
-        require(block.timestamp < pollData.endTime, "The poll has already ended.");
-        require(!pollData.userVotes[msg.sender].hasVoted, "You have already voted.");
-        require(_optionIndex < pollData.options.length, "Invalid option index.");
+        require(!pollData.hasEnded, "The poll has ended!");
+        require(block.timestamp < pollData.endTime, "The poll has already ended!");
+        require(!pollData.userVotes[msg.sender].hasVoted, "You have already voted!");
+        require(_optionIndex < 2, "Invalid option!");
 
         pollData.userVotes[msg.sender].optionIndex = _optionIndex;
         pollData.userVotes[msg.sender].hasVoted = true;
         pollData.votes[_optionIndex]++;
+        VoteDetails memory newVoteDetails = VoteDetails({
+            voter: msg.sender,
+            blockNumber: block.number,
+            blockTimestamp: block.timestamp
+        });
+        pollData.voteDetails[_optionIndex].push(newVoteDetails);
     }
 
-    function getOption(uint256 index) public view returns (string memory) {
-        require(index < pollData.options.length, "Invalid option index.");
-        return pollData.options[index];
+    function getVoteDetails(uint256 _optionIndex, uint256 _startIndex, uint256 _count) public view returns (VoteDetails[] memory) {
+        require(_optionIndex < 2, "Invalid option index!");
+
+        uint256 voteDetailsLength = pollData.voteDetails[_optionIndex].length;
+
+        if (_startIndex >= voteDetailsLength) {
+            return new VoteDetails[](0);
+        }
+
+        uint256 endIndex = _startIndex + _count;
+        if (endIndex > voteDetailsLength) {
+            endIndex = voteDetailsLength;
+        }
+
+        uint256 resultLength = endIndex - _startIndex;
+        VoteDetails[] memory voteDetailsSlice = new VoteDetails[](resultLength);
+
+        for (uint256 i = 0; i < resultLength; i++) {
+            voteDetailsSlice[i] = pollData.voteDetails[_optionIndex][_startIndex + i];
+        }
+
+        return voteDetailsSlice;
     }
-    function getVoteCount(uint256 _optionIndex) public view returns (uint256) {
+
+    function hasEnded() public view returns (bool) {
+        return pollData.hasEnded;
+    }
+
+    function getVoteCount(uint256 _optionIndex) public view returns (
+                uint256) {
         return pollData.votes[_optionIndex];
     }
 
@@ -50,8 +112,36 @@ contract Poll {
         return (userVote.optionIndex, userVote.hasVoted);
     }
 
+   function getWinner() public view returns (string memory) {
+        require(pollData.hasEnded, "The poll has not ended yet!");
+        uint256 winningOptionIndex = 0;
+        uint256 maxVotes = 0;
+        bool isTie = false;
 
+        for (uint256 i = 0; i < 2; i++) {
+            uint256 optionVotes = pollData.votes[i];
+            if (optionVotes > maxVotes) {
+                maxVotes = optionVotes;
+                winningOptionIndex = i;
+                isTie = false;
+            } else if (optionVotes == maxVotes) {
+                isTie = true;
+            }
+        }
+
+        if (isTie) {
+            return "tie";
+        } else {
+            if (winningOptionIndex == 0) {
+                return pollData.option1;
+            } else {
+                return pollData.option2;
+            }
+        }
+    }
+  
 
 }
+
 
     

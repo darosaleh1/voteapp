@@ -1,4 +1,4 @@
-import { createContext, useState, useEffect, useContext } from 'react';
+import { createContext, useContext } from 'react';
 import { AuthContext } from '@/context/AuthContext';
 import GroupFactory from '@/artifacts/contracts/GroupFactory.sol/GroupFactory.json';
 import { ethers } from 'ethers';
@@ -6,42 +6,33 @@ import { ethers } from 'ethers';
 export const GroupContext = createContext();
 
 export const GroupProvider = ({ children }) => {
-  const groupFactoryAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-
   const { currentAccount } = useContext(AuthContext);
-  const [groups, setGroups] = useState([]);
-  const [userGroups, setUserGroups] = useState([]);
-  const [groupFactoryContract, setGroupFactoryContract] = useState(null);
-
-  // Initialize the contract
-  useEffect(() => {
-    if (currentAccount && groupFactoryAddress) {
-      const provider = new ethers.providers.Web3Provider(window.ethereum);
-      const contract = new ethers.Contract(groupFactoryAddress, GroupFactory.abi, provider.getSigner());
-      setGroupFactoryContract(contract);
-    }
-  }, [currentAccount, groupFactoryAddress]);
+  const groupFactoryAddress = "0x5FC8d32690cc91D4c39d9d3abcBD16989F875707";
 
   const createNewGroup = async (groupName, isGroupPrivate, password) => {
-    if (!groupFactoryContract) {
-      console.error('GroupFactory contract not initialized');
-      return;
+    if (!currentAccount) {
+      throw new Error('User not connected');
     }
 
+    const provider = new ethers.providers.Web3Provider(window.ethereum);
+    const signer = provider.getSigner(currentAccount);
+
+    const groupFactoryContract = new ethers.Contract(
+      groupFactoryAddress,
+      GroupFactory.abi,
+      signer
+    );
+
     const hashedPassword = ethers.utils.keccak256(ethers.utils.toUtf8Bytes(password));
-    try {
-      const transaction = await groupFactoryContract.createGroup(groupName, isGroupPrivate, hashedPassword);
-      await transaction.wait();
-      console.log('Group created successfully');
-    } catch (error) {
-      console.error('Error creating group:', error);
-    }
+    const tx = await groupFactoryContract.createGroup(groupName, isGroupPrivate, hashedPassword);
+    await tx.wait();
   };
 
   return (
-    <GroupContext.Provider value={{ createNewGroup, userGroups, setUserGroups }}>
+    <GroupContext.Provider value={{ createNewGroup }}>
       {children}
     </GroupContext.Provider>
   );
 };
+
 

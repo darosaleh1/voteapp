@@ -4,12 +4,14 @@ import { AuthContext } from '@/context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import styles from './Navbar.module.css';
-import { useRouter } from 'next/router'; // Add this import
+import { useRouter } from 'next/router';
+import { faPlus, faHome } from '@fortawesome/free-solid-svg-icons';
+
 
 
 const Navbar = () => {
   const { currentAccount, logout } = useContext(AuthContext);
-  const router = useRouter(); // Add this line
+  const router = useRouter();
 
   const goToCreateGroupPage = () => {
     router.push('/create-group');

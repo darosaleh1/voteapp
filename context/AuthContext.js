@@ -97,10 +97,6 @@ export const AuthProvider = ({children}) => {
     }
   }, [currentAccount]);
   
-  // USE GROUP FACTORY
-
-  // const groupFactoryAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-
   return (
     <AuthContext.Provider value={{connectWallet, currentAccount, logout}}>
       {children}

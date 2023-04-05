@@ -6,7 +6,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import { styled } from '@mui/system';
-// Used MaterialUI library for the form
+
 const CreateGroupButton = styled(Button)(({ theme }) => ({
   backgroundColor: '#0d1b2a',
   color: '#fff',
@@ -17,16 +17,24 @@ const CreateGroupButton = styled(Button)(({ theme }) => ({
 }));
 
 const CreateGroup = () => {
+  const { createNewGroup } = useContext(GroupContext);
   const [groupName, setGroupName] = useState('');
   const [isPrivate, setIsPrivate] = useState(false);
   const [password, setPassword] = useState('');
 
-  const { createNewGroup } = useContext(GroupContext);
-
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    await createNewGroup(groupName, isPrivate, password);
+
+    try {
+      await createNewGroup(groupName, isPrivate, password);
+      alert('Group created successfully');
+      setGroupName('');
+      setIsPrivate(false);
+      setPassword('');
+    } catch (error) {
+      console.error(error);
+      alert('Error creating group');
+    }
   };
 
   return (
