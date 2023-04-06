@@ -1,6 +1,7 @@
 import { useRouter } from 'next/router';
 import { useContext, useEffect } from 'react';
 import { AuthContext } from '@/context/AuthContext';
+import MyGroups from './MyGroups';
 
 const HomePage = () => {
   const router = useRouter();
@@ -13,7 +14,10 @@ const HomePage = () => {
   }, [currentAccount, router]);
 
   return (
+    <div>
     <h1>Welcome to the home page</h1>
+    <MyGroups/>
+    </div>
   )
 };
 

@@ -1,6 +1,5 @@
 import { ethers } from 'ethers';
 import React, {useState, useEffect} from 'react';
-import { pollABI, pollAddress  } from './config';
 import GroupFactory from "@/artifacts/contracts/GroupFactory.sol/GroupFactory.json"
 import Group from "@/artifacts/contracts/Group.sol/Group.json"
 

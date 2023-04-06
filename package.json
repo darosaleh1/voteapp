@@ -25,6 +25,6 @@
     "web3modal": "^1.9.12"
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^2.0.1"
+    "@nomicfoundation/hardhat-toolbox": "^2.0.2"
   }
 }

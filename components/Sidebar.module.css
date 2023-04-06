@@ -1,16 +1,17 @@
-/* components/Navbar.module.css */
-.navbar {
-  display: flex;
-  justify-content: space-between;
-  padding: 10px;
-  background-color: #0d1b2a;
-  border-bottom: 1px solid white;
-}
+.sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 200px;
+    background-color: #0d1b2a;
+    padding: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1; /* Add z-index to sidebar */
+  }
+  
 
-
-
-.logoutButton,
-.createGroupButton {
+.createPollButton {
   font-size: 1.25rem;
   padding: 0.5rem 1rem;
   background-color: #0d1b2a;
@@ -19,17 +20,21 @@
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s, border-color 0.3s;
   border-radius: 25px;
-  margin-right: 10px; /* Add some margin between the buttons */
+  margin-bottom: 10px;
 }
 
-.logoutButton:hover,
-.createGroupButton:hover {
+.createPollButton:hover {
   background-color: #fff;
   color: #1a237e;
   border-color: #1a237e;
 }
 
-.homeButton {
+.minimized {
+  width: 40px;
+  overflow: hidden;
+}
+
+.toggleButton {
   font-size: 1.25rem;
   padding: 0.5rem 1rem;
   background-color: #0d1b2a;
@@ -38,19 +43,17 @@
   cursor: pointer;
   transition: background-color 0.3s, color 0.3s, border-color 0.3s;
   border-radius: 25px;
-  margin-right: 10px; /* Add some margin between the buttons */
+  margin-bottom: 10px;
 }
 
-.homeButton:hover {
+.toggleButton:hover {
   background-color: #fff;
   color: #1a237e;
   border-color: #1a237e;
+
 }
 
-.navButtons {
-  display: flex;
-}
-
-
-
+.contentContainer {
+    transition: margin-left 0.3s;
+  }
   

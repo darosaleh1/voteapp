@@ -2,12 +2,9 @@
 import React, { useContext } from 'react';
 import { AuthContext } from '@/context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { faPlus, faHome } from '@fortawesome/free-solid-svg-icons';
 import styles from './Navbar.module.css';
 import { useRouter } from 'next/router';
-import { faPlus, faHome } from '@fortawesome/free-solid-svg-icons';
-
-
 
 const Navbar = () => {
   const { currentAccount, logout } = useContext(AuthContext);
@@ -17,24 +14,39 @@ const Navbar = () => {
     router.push('/create-group');
   };
 
- 
+  const goToHomePage = () => {
+    router.push('/home');
+  };
+
+  const goToGroupsPage = () => {
+    router.push('/browse-groups');
+  };
 
   return (
     <div className={styles.navbar}>
-      {currentAccount && (
-        <>
-          <button className={styles.createGroupButton} onClick ={goToCreateGroupPage}>
-            <FontAwesomeIcon icon={faPlus} />
-            Create Group
-          </button>
-          <button className={styles.logoutButton} onClick={logout}>
-            Logout
-          </button>
-        </>
-      )}
+      <button className={styles.homeButton} onClick={goToHomePage}>
+        <FontAwesomeIcon icon={faHome} />
+      </button>
+      <div className={styles.navButtons}>
+        {currentAccount && (
+          <>
+            <button className={styles.createGroupButton} onClick={goToGroupsPage}>
+              Browse Groups
+            </button>
+            <button className={styles.createGroupButton} onClick={goToCreateGroupPage}>
+              <FontAwesomeIcon icon={faPlus} />
+              Create Group
+            </button>
+            <button className={styles.logoutButton} onClick={logout}>
+              Logout
+            </button>
+          </>
+        )}
+      </div>
     </div>
   );
 };
 
 export default Navbar;
+
 
