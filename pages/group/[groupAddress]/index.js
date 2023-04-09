@@ -12,7 +12,7 @@ const GroupPage = () => {
   const router = useRouter();
   const { groupAddress } = router.query;
   const { getGroupDetails } = useContext(GroupContext);
-  const { currentAccount } = useContext(AuthContext);
+  const { currentAccount, isValidAddress } = useContext(AuthContext);
   const { getActivePoll, clearActivePoll, refreshActivePoll, endPoll, vote, hasVoted, getLastPoll, getPollWinner, isPollEnded, getPollDetails } = useContext(PollContext);
   const [userHasVoted, setUserHasVoted] = useState(false);
   const [group, setGroup] = useState(null);
@@ -36,9 +36,14 @@ const GroupPage = () => {
     const fetchActivePoll = async () => {
       if (groupAddress) {
         const activePollData = await getActivePoll(groupAddress);
-        setActivePoll(activePollData);
+        if (activePollData) {
+          setActivePoll(activePollData);
+        } else {
+          setActivePoll(null);
+        }
       }
     };
+    
 
     fetchGroupDetails();
     fetchActivePoll();
@@ -74,7 +79,8 @@ const GroupPage = () => {
         const lastPollAddress = await getLastPoll(groupAddress);
         console.log("Last poll address:", lastPollAddress);
     
-        if (lastPollAddress) {
+        // Check if lastPollAddress is a valid Ethereum address
+        if (isValidAddress(lastPollAddress)) {
           const pollEnded = await isPollEnded(lastPollAddress);
           console.log("Poll ended:", pollEnded);
     
@@ -93,6 +99,8 @@ const GroupPage = () => {
         }
       }
     };
+    
+    
     
     
     
@@ -134,6 +142,8 @@ const GroupPage = () => {
   };
 
   return (
+    group && (
+
     <GroupLayout
       isOwner={isOwner}
       onCreatePoll={handleCreatePoll}
@@ -174,7 +184,7 @@ const GroupPage = () => {
         )}
       </div>
     </GroupLayout>
-  );
+  ));
 };
 
 export default GroupPage;

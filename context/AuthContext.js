@@ -46,6 +46,10 @@ export const AuthProvider = ({children}) => {
     }
   };
 
+  const isValidAddress = (address) => {
+    return ethers.utils.isAddress(address) && address !== ethers.constants.AddressZero;
+  };
+
   // LOGOUT
 
   const logout = () => {
@@ -97,7 +101,7 @@ export const AuthProvider = ({children}) => {
   }, [currentAccount]);
   
   return (
-    <AuthContext.Provider value={{connectWallet, currentAccount, logout}}>
+    <AuthContext.Provider value={{connectWallet, currentAccount, logout, isValidAddress}}>
       {children}
     </AuthContext.Provider>
   )

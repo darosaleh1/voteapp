@@ -87,16 +87,27 @@ export const PollProvider = ({ children }) => {
   };
 
   const getActivePoll = async (groupAddress) => {
-    const groupContract = new ethers.Contract(groupAddress, Group.abi, signer);
-    const activePollAddress = await groupContract.getActivePoll();
-    if (activePollAddress !== ethers.constants.AddressZero) {
-      const activePoll = await getPollDetails(activePollAddress);
-      const endTime = activePoll.endTime;
-      const formattedEndTime = new Date(endTime * 1000).toLocaleString();
-      return { ...activePoll, endTime, formattedEndTime, pollAddress: activePollAddress }; // Include the pollAddress in the activePoll object
+    try {
+      const groupContract = new ethers.Contract(groupAddress, Group.abi, signer);
+      const activePollAddress = await groupContract.getActivePoll();
+  
+      // Check if activePollAddress is a valid Ethereum address
+      if (ethers.utils.isAddress(activePollAddress) && activePollAddress !== ethers.constants.AddressZero) {
+        const activePoll = await getPollDetails(activePollAddress);
+        const endTime = activePoll.endTime;
+        const formattedEndTime = new Date(endTime * 1000).toLocaleString();
+        const creationTime = (endTime - activePoll.duration) * 1000;
+        const formattedCreationTime = new Date(creationTime).toLocaleString();
+        return { ...activePoll, endTime, formattedEndTime, formattedCreationTime, pollAddress: activePollAddress }; // Include the pollAddress and formattedCreationTime in the activePoll object
+      }
+    } catch (error) {
+      console.error("Error while getting active poll:", error);
     }
     return null;
   };
+  
+  
+  
   
 
   const clearActivePoll = async (groupAddress) => {
