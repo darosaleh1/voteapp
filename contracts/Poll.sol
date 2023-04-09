@@ -1,4 +1,7 @@
 // SPDX-License-Identifier: MIT
+
+import "./IGroup.sol";
+
 pragma solidity ^0.8.9;
 
 contract Poll {
@@ -13,6 +16,7 @@ contract Poll {
         bool hasEnded;
         address creator;
         uint256 duration;
+        address groupAddress;
     }
 
     struct Vote {
@@ -28,12 +32,14 @@ contract Poll {
 
     PollData public pollData;
 
-    constructor(address _creator, string memory _question, string memory _option1, string memory _option2, uint256 _duration) {
+    constructor(address _creator, string memory _question, string memory _option1, string memory _option2, uint256 _duration,address _groupAddress) {
         pollData.creator = _creator;
         pollData.question = _question;
         pollData.option1 = _option1;
         pollData.option2 = _option2;
+        pollData.groupAddress = _groupAddress;
         pollData.duration = _duration;
+
         pollData.endTime = block.timestamp + _duration;
 
         pollData.votes[0] = 0;
@@ -50,7 +56,6 @@ contract Poll {
     }
 
     function endPoll() public {
-        require(msg.sender == pollData.creator, "Only the poll creator can end the poll!");
         require(block.timestamp > pollData.endTime, "The poll has not yet reached its end time!");
         require(!pollData.hasEnded, "The poll has already been ended!");
 
@@ -58,6 +63,7 @@ contract Poll {
     }
 
     function vote(uint256 _optionIndex) public {
+        require(IGroup(pollData.groupAddress).isMember(msg.sender), "Caller is not a group member!");
         require(!pollData.hasEnded, "The poll has ended!");
         require(block.timestamp < pollData.endTime, "The poll has already ended!");
         require(!pollData.userVotes[msg.sender].hasVoted, "You have already voted!");

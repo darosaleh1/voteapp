@@ -54,7 +54,7 @@ const Groups = () => {
   const handleJoinGroup = async (password, groupAddress) => {
     try {
       const address = groupAddress || selectedGroup.address;
-      await joinGroup(address, password, currentAccount);
+      await joinGroup(address, password || '', currentAccount); // Add the '||' operator to provide an empty string as the default value
       setSelectedGroup(null);
       alert('Successfully joined the group!');
     } catch (error) {
@@ -62,6 +62,7 @@ const Groups = () => {
       alert('Error joining the group');
     }
   };
+  
   
   const togglePasswordModal = () => {
     setSelectedGroup(null);

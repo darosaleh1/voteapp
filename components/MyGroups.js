@@ -11,7 +11,9 @@ const MyGroups = () => {
   useEffect(() => {
     const fetchUserGroups = async () => {
       if (currentAccount) {
+        console.log('Current Account:', currentAccount);
         const groups = await getUserGroups(currentAccount);
+        console.log('Fetched Groups:', groups);
         setMyGroups(groups);
       }
     };

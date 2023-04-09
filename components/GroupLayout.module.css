@@ -1,0 +1,10 @@
+/* GroupLayout.module.css */
+.groupLayout {
+    display: flex;
+  }
+  
+  .content {
+    margin-left: 1rem;
+    flex: 1;
+  }
+  

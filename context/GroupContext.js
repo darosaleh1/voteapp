@@ -4,11 +4,13 @@ import GroupFactory from '@/artifacts/contracts/GroupFactory.sol/GroupFactory.js
 import { ethers } from 'ethers';
 import Group from '@/artifacts/contracts/Group.sol/Group.json';
 
+
 export const GroupContext = createContext();
 
 export const GroupProvider = ({ children }) => {
   const { currentAccount } = useContext(AuthContext);
   const groupFactoryAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+
 
   const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
   const signer = currentAccount ? provider.getSigner(currentAccount) : null;
@@ -51,9 +53,11 @@ export const GroupProvider = ({ children }) => {
     const groupContract = new ethers.Contract(groupAddress, Group.abi, signer);
     const groupName = await groupContract.groupName();
     const memberCount = await groupContract.memberCount();
-    const isGroupPrivate = await groupContract.isGroupPrivate(); // Add this line to get the isGroupPrivate value
-    return { groupName, memberCount, isGroupPrivate }; // Include isGroupPrivate in the returned object
+    const isGroupPrivate = await groupContract.isGroupPrivate();
+    const groupOwner = await groupContract.groupOwner(); // Add this line to get the groupOwner value
+    return { groupName, memberCount, isGroupPrivate, groupOwner }; // Include groupOwner in the returned object
   };
+  
   
   
   const getGroupMemberCount = async (groupAddress) => {
@@ -64,9 +68,10 @@ export const GroupProvider = ({ children }) => {
   
   const isMemberOfGroup = async (groupAddress, userAddress) => {
     const groupContract = new ethers.Contract(groupAddress, Group.abi, signer);
-    const isMember = await groupContract.checkMembership(userAddress);
+    const isMember = await groupContract.members(userAddress);
     return isMember;
   };
+  
 
   const joinGroup = async (groupAddress, password, currentAccount) => {
     if (!currentAccount) {
@@ -92,14 +97,24 @@ export const GroupProvider = ({ children }) => {
     );
     return userGroups;
   };
-  
-  
-  
-  
+
+  const getAllMembers = async (groupAddress) => {
+    const groupContract = new ethers.Contract(groupAddress, Group.abi, signer);
+    const memberCount = await groupContract.memberCount();
+    const members = [];
+    for (let i = 0; i < memberCount; i++) {
+      const memberAddress = await groupContract.members(i);
+      if (memberAddress) {
+        members.push(memberAddress);
+      }
+    }
+    return members;
+  };
   
 
+  
   return (
-    <GroupContext.Provider value={{ createNewGroup, getAllGroups, getGroupDetails, getGroupMemberCount, isMemberOfGroup, joinGroup, getUserGroups }}>
+    <GroupContext.Provider value={{ createNewGroup, getAllGroups, getGroupDetails, getGroupMemberCount, isMemberOfGroup, joinGroup, getUserGroups, getAllMembers }}>
       {children}
     </GroupContext.Provider>
   );
