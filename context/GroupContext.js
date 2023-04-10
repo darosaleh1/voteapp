@@ -100,21 +100,50 @@ export const GroupProvider = ({ children }) => {
 
   const getAllMembers = async (groupAddress) => {
     const groupContract = new ethers.Contract(groupAddress, Group.abi, signer);
-    const memberCount = await groupContract.memberCount();
-    const members = [];
-    for (let i = 0; i < memberCount; i++) {
-      const memberAddress = await groupContract.members(i);
-      if (memberAddress) {
-        members.push(memberAddress);
-      }
-    }
+    const members = await groupContract.getMembers();
     return members;
   };
+
+  const removeMember = async (groupAddress, memberAddress, owner) => {
+    try {
+      const signer = provider.getSigner(owner);
+      const group = new ethers.Contract(groupAddress, Group.abi, signer);
+      await group.removeMember(memberAddress);
+    } catch (error) {
+      console.error("Error removing member:", error);
+    }
+  };
+
+  const getGroupOwner = async (groupAddress) => {
+    try {
+      const group = new ethers.Contract(groupAddress, Group.abi, provider);
+      const owner = await group.groupOwner();
+      return owner;
+    } catch (error) {
+      console.error("Error fetching group owner:", error);
+      return null;
+    }
+  };
+
+  const transferOwnership = async (groupAddress, newOwner) => {
+    try {
+      const group = new ethers.Contract(groupAddress, Group.abi, signer);
+      const tx = await group.transferOwnership(newOwner);
+      await tx.wait();
+      return true;
+    } catch (error) {
+      console.error("Error transferring ownership:", error);
+      return false;
+    }
+  };
+  
+  
+  
   
 
   
   return (
-    <GroupContext.Provider value={{ createNewGroup, getAllGroups, getGroupDetails, getGroupMemberCount, isMemberOfGroup, joinGroup, getUserGroups, getAllMembers }}>
+    <GroupContext.Provider value={{ createNewGroup, getAllGroups, getGroupDetails, getGroupMemberCount, isMemberOfGroup, joinGroup, getUserGroups, getAllMembers, removeMember, getGroupOwner, transferOwnership }}>
       {children}
     </GroupContext.Provider>
   );

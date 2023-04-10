@@ -7,19 +7,27 @@ import Sidebar from '@/components/Sidebar';
 import styles from '@/components/Sidebar.module.css';
 import GroupLayout from '@/components/GroupLayout';
 
-
 const GroupPage = () => {
   const router = useRouter();
   const { groupAddress } = router.query;
   const { getGroupDetails } = useContext(GroupContext);
   const { currentAccount, isValidAddress } = useContext(AuthContext);
-  const { getActivePoll, clearActivePoll, refreshActivePoll, endPoll, vote, hasVoted, getLastPoll, getPollWinner, isPollEnded, getPollDetails } = useContext(PollContext);
+  const { getActivePoll, clearActivePoll, refreshActivePoll, endPoll, vote, hasVoted, getLastPoll, getLastPollWinner, getPollWinner, isPollEnded, getPollDetails } = useContext(PollContext);
   const [userHasVoted, setUserHasVoted] = useState(false);
   const [group, setGroup] = useState(null);
   const [isOwner, setIsOwner] = useState(false);
   const [activePoll, setActivePoll] = useState(null);
   const [lastPollWinner, setLastPollWinner] = useState(null);
   const [lastPollDetails, setLastPollDetails] = useState(null);
+  const [refreshLastPoll, setRefreshLastPoll] = useState(false);
+  const [lastPollEnded, setLastPollEnded] = useState(false);
+  const [lastPollAddress, setLastPollAddress] = useState(null);
+
+
+  const handleCreatePoll = useCallback (() => {
+    router.push(`/group/${groupAddress}/create-poll`);
+    setLastPollEnded(false);
+  }, [groupAddress, router]);
 
 
   useEffect(() => {
@@ -64,62 +72,89 @@ const GroupPage = () => {
     if (activePoll) {
       const pollEndTime = new Date(activePoll.endTime * 1000).getTime(); // Convert to milliseconds
       const currentTime = new Date().getTime(); // In milliseconds
-
+  
       if (currentTime >= pollEndTime) {
         await endPoll(activePoll.pollAddress);
         await clearActivePoll(groupAddress);
         await refreshActivePoll(groupAddress, setActivePoll);
+        return true;
       }
     }
+    return false;
   }, [activePoll, groupAddress, endPoll, clearActivePoll, refreshActivePoll]);
+  
 
   useEffect(() => {
     const fetchLastPollWinner = async () => {
-      if (groupAddress) {
-        const lastPollAddress = await getLastPoll(groupAddress);
-        console.log("Last poll address:", lastPollAddress);
-    
-        // Check if lastPollAddress is a valid Ethereum address
-        if (isValidAddress(lastPollAddress)) {
-          const pollEnded = await isPollEnded(lastPollAddress);
-          console.log("Poll ended:", pollEnded);
-    
-          if (pollEnded) {
-            const winner = await getPollWinner(lastPollAddress);
-            console.log("Winner:", winner);
-            const lastPoll = await getPollDetails(lastPollAddress);
-            console.log("Last poll details:", lastPoll);
-            setLastPollDetails(lastPoll);
-            setLastPollWinner(winner);
-          } else {
-            setLastPollWinner("Poll has not ended yet.");
-          }
-        } else {
-          setLastPollWinner("No last poll winner available.");
-        }
+      if (!groupAddress) {
+        return;
+      }
+  
+      const winner = await getLastPollWinner(groupAddress);
+  
+      if (winner) {
+        const lastPollAddr = await getLastPoll(groupAddress);
+        setLastPollAddress(lastPollAddr);
+        const lastPoll = await getPollDetails(lastPollAddr);
+        setLastPollDetails(lastPoll);
+        setLastPollWinner(winner);
+      } else {
+        setLastPollWinner("No last poll winner available.");
       }
     };
-    
-    
-    
-    
-    
-    
-    
+  
     fetchLastPollWinner();
-  }, [groupAddress]);
+  }, [groupAddress, activePoll, refreshLastPoll, lastPollAddress]);
+
+  useEffect(() => {
+    const updateLastPollWinner = async () => {
+      if (activePoll) {
+        console.log("Fetching last poll winner...");
+        const pastPolls = await getLastPoll(groupAddress);
+        console.log("Last Poll Address:", pastPolls);
+        
+        if (isValidAddress(pastPolls)) {
+          const winner = await getPollWinner(pastPolls);
+          console.log("Last Poll Winner:", winner);
+          setLastPollWinner(winner);
+          
+          const lastPoll = await getPollDetails(pastPolls);
+          console.log("Last Poll Details:", lastPoll);
+          setLastPollDetails(lastPoll);
+        } else {
+          console.log("Invalid Poll Address");
+          setLastPollWinner("No last poll winner available.");
+        }
+      } else {
+        console.log("No active poll");
+      }
+    };
+  
+    updateLastPollWinner();
+  }, [activePoll, groupAddress, getLastPoll, getPollWinner, getPollDetails, isValidAddress]);
+  
+  
+
+
 
   useEffect(() => {
     if (activePoll) {
-      const interval = setInterval(() => {
-        checkPollStatus();
+      const interval = setInterval(async () => {
+        const pollEnded = await checkPollStatus();
+        if (pollEnded) {
+          setLastPollEnded(true);
+        }
       }, 5000); // Check every 5 seconds
-
+  
       return () => {
         clearInterval(interval);
       };
     }
   }, [activePoll, checkPollStatus]);
+
+  
+  
+  
 
   if (!group) {
     return <div>Loading...</div>;
@@ -127,9 +162,8 @@ const GroupPage = () => {
 
   const { groupName } = group;
 
-  const handleCreatePoll = () => {
-    router.push(`/group/${groupAddress}/create-poll`);
-  };
+  
+
 
   const handleVote = async (optionIndex) => {
     try {

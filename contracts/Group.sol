@@ -16,6 +16,11 @@ contract Group {
     address public groupOwner;
     address public groupFactoryAddress;
     address public activePoll;
+    address[] public memberAddresses;
+
+    event MemberRemoved(address indexed user, address indexed group);
+
+
     
 
 
@@ -32,6 +37,7 @@ contract Group {
         groupFactoryAddress = _groupFactoryAddress;
         groupOwner = _groupOwner;
         members[groupOwner] = true;
+        memberAddresses.push(groupOwner);
         memberCount++;
 
         if (isGroupPrivate) {
@@ -52,6 +58,7 @@ contract Group {
         }
         require(!members[msg.sender], "You are already a member of this group!");
         members[msg.sender] = true;
+        memberAddresses.push(msg.sender);
         GroupFactory(groupFactoryAddress).updateUserGroups(msg.sender, address(this), true);
         memberCount++;
     }
@@ -60,22 +67,16 @@ contract Group {
     function leaveGroup() public {
         require(members[msg.sender], "You are not a member of this group!");
         members[msg.sender] = false;
+        _removeMemberAddress(msg.sender);
         GroupFactory(groupFactoryAddress).updateUserGroups(msg.sender, address(this), false);
         memberCount--;
 
     }
-
-    function addMember(address _newMember) public onlyGroupOwner {
-    require(!members[_newMember], "This person is already a member of the group!");
-    members[_newMember] = true;
-    GroupFactory(groupFactoryAddress).updateUserGroups(_newMember, address(this), true);
-    memberCount++;
-    }
-
     
     function removeMember(address _memberAddress) public onlyGroupOwner {
     require(members[_memberAddress], "This person doesn't belong to the group!");
     members[_memberAddress] = false;
+    _removeMemberAddress(_memberAddress);
     GroupFactory(groupFactoryAddress).updateUserGroups(_memberAddress, address(this), false);
     memberCount--;
     }
@@ -108,15 +109,17 @@ contract Group {
         return activePoll;
     }
 
-    function getPastPolls() public view returns (address[] memory, address) {
+   function getPastPolls() public view returns (address[] memory, address) {
     if (polls.length == 0) {
         return (new address[](0), address(0));
     }
 
-    address[] memory pastPolls = new address[](polls.length - 1);
+    uint256 pastPollsCount = activePoll == address(0) ? polls.length : polls.length - 1;
+
+    address[] memory pastPolls = new address[](pastPollsCount);
     address lastPoll = address(0);
     uint256 pastPollIndex = 0;
-    for (uint256 i = 0; i < polls.length - 1; i++) {
+    for (uint256 i = 0; i < polls.length; i++) {
         if (polls[i] != activePoll) {
             pastPolls[pastPollIndex++] = polls[i];
             lastPoll = polls[i];
@@ -125,9 +128,29 @@ contract Group {
     return (pastPolls, lastPoll);
 }
 
+
+
+
     function isMember(address _address) public view returns (bool) {
     return members[_address];
     }
+
+    // Add this function to return the member addresses
+    function getMembers() public view returns (address[] memory) {
+        return memberAddresses;
+    }
+
+    // Add this helper function to remove a member address from the memberAddresses array
+    function _removeMemberAddress(address _memberAddress) private {
+        for (uint256 i = 0; i < memberAddresses.length; i++) {
+            if (memberAddresses[i] == _memberAddress) {
+                memberAddresses[i] = memberAddresses[memberAddresses.length - 1];
+                memberAddresses.pop();
+                break;
+            }
+        }
+    }
+
 
 
 }
