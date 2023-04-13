@@ -39,6 +39,10 @@ const VoteDetails = () => {
     router.push(`/group/${groupAddress}/past-polls`);
   };
 
+  const openEtherscan = (transactionId) => {
+    window.open(`https://sepolia.etherscan.io/tx/${transactionId}`, '_blank');
+  };
+
   if (!poll) {
     return <div>Loading...</div>;
   }
@@ -52,7 +56,7 @@ const VoteDetails = () => {
       <ul>
         {option1Votes.map((vote, index) => (
           <li key={index}>
-            Voter {index + 1}: {vote.voter}
+            Voter {index + 1}: {vote.voter}, Block Number: {vote.blockNumber.toString()}, Block Timestamp: {new Date(vote.blockTimestamp * 1000).toLocaleString()}, Transaction ID: {vote.transactionId} <button onClick={() => openEtherscan(vote.transactionId)}>View on Etherscan</button>
           </li>
         ))}
       </ul>
@@ -60,7 +64,7 @@ const VoteDetails = () => {
       <ul>
         {option2Votes.map((vote, index) => (
           <li key={index}>
-            Voter {index + 1}: {vote.voter}
+            Voter {index + 1}: {vote.voter}, Block Number: {vote.blockNumber.toString()}, Block Timestamp: {new Date(vote.blockTimestamp * 1000).toLocaleString()}, Transaction ID: {vote.transactionId} <button onClick={() => openEtherscan(vote.transactionId)}>View on Etherscan</button>
           </li>
         ))}
       </ul>
@@ -70,9 +74,5 @@ const VoteDetails = () => {
 };
 
 export default VoteDetails;
-
-
-
-
 
 

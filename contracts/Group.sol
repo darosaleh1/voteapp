@@ -65,13 +65,14 @@ contract Group {
 
 
     function leaveGroup() public {
-        require(members[msg.sender], "You are not a member of this group!");
-        members[msg.sender] = false;
-        _removeMemberAddress(msg.sender);
-        GroupFactory(groupFactoryAddress).updateUserGroups(msg.sender, address(this), false);
-        memberCount--;
+    require(members[msg.sender], "You are not a member of this group!");
+    require(msg.sender != groupOwner, "Group owner cannot leave the group.");
+    members[msg.sender] = false;
+    _removeMemberAddress(msg.sender);
+    GroupFactory(groupFactoryAddress).updateUserGroups(msg.sender, address(this), false);
+    memberCount--;
+}
 
-    }
     
     function removeMember(address _memberAddress) public onlyGroupOwner {
     require(members[_memberAddress], "This person doesn't belong to the group!");
@@ -135,12 +136,10 @@ contract Group {
     return members[_address];
     }
 
-    // Add this function to return the member addresses
     function getMembers() public view returns (address[] memory) {
         return memberAddresses;
     }
 
-    // Add this helper function to remove a member address from the memberAddresses array
     function _removeMemberAddress(address _memberAddress) private {
         for (uint256 i = 0; i < memberAddresses.length; i++) {
             if (memberAddresses[i] == _memberAddress) {

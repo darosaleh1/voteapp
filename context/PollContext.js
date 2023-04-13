@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { AuthContext } from '@/context/AuthContext';
 import { ethers } from 'ethers';
 import Group from '@/artifacts/contracts/Group.sol/Group.json';
@@ -9,8 +9,24 @@ export const PollContext = createContext();
 export const PollProvider = ({ children }) => {
   const { currentAccount } = useContext(AuthContext);
 
-  const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
-  const signer = currentAccount ? provider.getSigner(currentAccount) : null;
+  const [provider, setProvider] = useState(null);
+  const [signer, setSigner] = useState(null);
+
+  const isBrowser = typeof window !== 'undefined';
+
+
+  useEffect(() => {
+    if (isBrowser) {
+      if (typeof window.ethereum === 'undefined') {
+        throw new Error('MetaMask not found, please install it from metamask.io');
+      }
+      const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
+      setProvider(web3Provider);
+      if (currentAccount) {
+        setSigner(web3Provider.getSigner());
+      }
+    }
+  }, [currentAccount]);
 
   const createPoll = async (groupAddress, question, option1, option2, duration) => {
     if (!currentAccount || !signer) {
@@ -53,14 +69,6 @@ export const PollProvider = ({ children }) => {
     return new ethers.Contract(pollAddress, Poll.abi, signer);
   };
   
-
-    
-  
-  
-  
-  
-  
-
   const vote = async (pollAddress, optionIndex) => {
     if (!currentAccount || !signer) {
       throw new Error('User not connected');
@@ -68,11 +76,14 @@ export const PollProvider = ({ children }) => {
   
     const pollContract = new ethers.Contract(pollAddress, Poll.abi, signer);
     const tx = await pollContract.vote(optionIndex);
-    await tx.wait();
+    const receipt = await tx.wait(); // Wait for the transaction to be mined
+  
+    const transactionId = receipt.transactionHash; // Get the transaction hash from the receipt
+  
+    // Call the updateTransactionId function with the transaction hash
+    const updateTx = await pollContract.updateTransactionId(transactionId);
+    await updateTx.wait(); // Wait for the updateTransactionId transaction to be mined
   };
-  
-  
-
   
 
   const getUserVote = async (pollAddress) => {

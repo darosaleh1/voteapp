@@ -28,6 +28,8 @@ contract Poll {
         address voter;
         uint256 blockNumber;
         uint256 blockTimestamp;
+        bytes32 transactionId;
+
     }
 
     PollData public pollData;
@@ -65,7 +67,6 @@ contract Poll {
     function vote(uint256 _optionIndex) public {
         require(IGroup(pollData.groupAddress).isMember(msg.sender), "Caller is not a group member!");
         require(!pollData.hasEnded, "The poll has ended!");
-        require(block.timestamp < pollData.endTime, "The poll has already ended!");
         require(!pollData.userVotes[msg.sender].hasVoted, "You have already voted!");
         require(_optionIndex < 2, "Invalid option!");
 
@@ -75,9 +76,24 @@ contract Poll {
         VoteDetails memory newVoteDetails = VoteDetails({
             voter: msg.sender,
             blockNumber: block.number,
-            blockTimestamp: block.timestamp
+            blockTimestamp: block.timestamp,
+            transactionId: ""
         });
         pollData.voteDetails[_optionIndex].push(newVoteDetails);
+    }
+
+     function updateTransactionId(bytes32 _transactionId) public {
+        require(pollData.userVotes[msg.sender].hasVoted, "You have not voted yet!");
+
+        uint256 optionIndex = pollData.userVotes[msg.sender].optionIndex;
+        uint256 voteDetailsLength = pollData.voteDetails[optionIndex].length;
+
+        for (uint256 i = 0; i < voteDetailsLength; i++) {
+            if (pollData.voteDetails[optionIndex][i].voter == msg.sender) {
+                pollData.voteDetails[optionIndex][i].transactionId = _transactionId;
+                break;
+            }
+        }
     }
 
     function getVoteDetails(uint256 _optionIndex, uint256 _startIndex, uint256 _count) public view returns (VoteDetails[] memory) {

@@ -1,4 +1,4 @@
-import { createContext, useContext } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { AuthContext } from '@/context/AuthContext';
 import GroupFactory from '@/artifacts/contracts/GroupFactory.sol/GroupFactory.json';
 import { ethers } from 'ethers';
@@ -9,18 +9,40 @@ export const GroupContext = createContext();
 
 export const GroupProvider = ({ children }) => {
   const { currentAccount } = useContext(AuthContext);
-  const groupFactoryAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
+  const groupFactoryAddress = "0x09E2780737D29219117a030d958821607905e0ce";
+  const [provider, setProvider] = useState(null);
+  const [signer, setSigner] = useState(null);
+  const [groupFactoryContract, setGroupFactoryContract] = useState(null);
+  const [leavingGroup, setLeavingGroup] = useState(false);
 
 
-  const provider = new ethers.providers.JsonRpcProvider("http://localhost:8545");
-  const signer = currentAccount ? provider.getSigner(currentAccount) : null;
 
 
-  const groupFactoryContract = new ethers.Contract(
-    groupFactoryAddress,
-    GroupFactory.abi,
-    signer
-  );
+  const isBrowser = typeof window !== 'undefined';
+
+  useEffect(() => {
+    if (signer) {
+      setGroupFactoryContract(new ethers.Contract(groupFactoryAddress, GroupFactory.abi, signer));
+    }
+  }, [signer]);
+  
+
+
+  useEffect(() => {
+    if (isBrowser) {
+      if (typeof window.ethereum === 'undefined') {
+        throw new Error('MetaMask not found, please install it from metamask.io');
+      }
+      const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
+      setProvider(web3Provider);
+      if (currentAccount) {
+        const signerWithAddress = web3Provider.getSigner();
+        signerWithAddress.getAddress().then((address) => console.log("Signer address:", address));
+        setSigner(signerWithAddress);
+      }
+    }
+  }, [currentAccount]);
+  
 
   const createNewGroup = async (groupName, isGroupPrivate, password) => {
     if (!currentAccount || !signer) {
@@ -41,7 +63,6 @@ export const GroupProvider = ({ children }) => {
   
     const groups = await groupFactoryContract.getDeployedGroups();
   
-    // Check if the list is empty
     if (groups.length === 0) {
       return [];
     }
@@ -54,8 +75,8 @@ export const GroupProvider = ({ children }) => {
     const groupName = await groupContract.groupName();
     const memberCount = await groupContract.memberCount();
     const isGroupPrivate = await groupContract.isGroupPrivate();
-    const groupOwner = await groupContract.groupOwner(); // Add this line to get the groupOwner value
-    return { groupName, memberCount, isGroupPrivate, groupOwner }; // Include groupOwner in the returned object
+    const groupOwner = await groupContract.groupOwner(); 
+    return { groupName, memberCount, isGroupPrivate, groupOwner };
   };
   
   
@@ -84,8 +105,22 @@ export const GroupProvider = ({ children }) => {
     await tx.wait();
   };
 
+  const leaveGroup = async (groupAddress) => {
+    try {
+      const groupContract = new ethers.Contract(groupAddress, Group.abi, signer);
+      const tx = await groupContract.leaveGroup();
+      await tx.wait();
+    } catch (error) {
+      console.error("Error leaving the group:", error);
+    }
+  };
+  
+
   const getUserGroups = async (userAddress) => {
-    const groupFactoryContract = new ethers.Contract(groupFactoryAddress, GroupFactory.abi, signer);
+    if (!groupFactoryContract) {
+      return [];
+    }
+  
     const userGroupsAddresses = await groupFactoryContract.getUserGroups(userAddress);
     const userGroups = await Promise.all(
       userGroupsAddresses.map(async (groupAddress) => {
@@ -97,6 +132,8 @@ export const GroupProvider = ({ children }) => {
     );
     return userGroups;
   };
+  
+  
 
   const getAllMembers = async (groupAddress) => {
     const groupContract = new ethers.Contract(groupAddress, Group.abi, signer);
@@ -143,7 +180,7 @@ export const GroupProvider = ({ children }) => {
 
   
   return (
-    <GroupContext.Provider value={{ createNewGroup, getAllGroups, getGroupDetails, getGroupMemberCount, isMemberOfGroup, joinGroup, getUserGroups, getAllMembers, removeMember, getGroupOwner, transferOwnership }}>
+    <GroupContext.Provider value={{ createNewGroup, getAllGroups, getGroupDetails, getGroupMemberCount, isMemberOfGroup, joinGroup, getUserGroups, getAllMembers, removeMember, getGroupOwner, transferOwnership, leaveGroup }}>
       {children}
     </GroupContext.Provider>
   );
