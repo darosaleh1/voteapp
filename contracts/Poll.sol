@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 
 import "./IGroup.sol";
+import "./VotedNFT.sol";
 
 pragma solidity ^0.8.9;
 
@@ -17,11 +18,13 @@ contract Poll {
         address creator;
         uint256 duration;
         address groupAddress;
+        uint256 nftClaimCount;
     }
 
     struct Vote {
         uint256 optionIndex;
         bool hasVoted;
+        bool hasClaimedNFT;
     }
 
     struct VoteDetails {
@@ -31,7 +34,7 @@ contract Poll {
         bytes32 transactionId;
 
     }
-
+    VotedNFT private _nft;
     PollData public pollData;
 
     constructor(address _creator, string memory _question, string memory _option1, string memory _option2, uint256 _duration,address _groupAddress) {
@@ -41,6 +44,8 @@ contract Poll {
         pollData.option2 = _option2;
         pollData.groupAddress = _groupAddress;
         pollData.duration = _duration;
+        _nft = new VotedNFT();
+
 
         pollData.endTime = block.timestamp + _duration;
 
@@ -161,6 +166,21 @@ contract Poll {
             }
         }
     }
+
+    function claimNFT() public {
+    require(pollData.userVotes[msg.sender].hasVoted, "You must vote before claiming an NFT!");
+    require(!pollData.userVotes[msg.sender].hasClaimedNFT, "You have already claimed your NFT!");
+
+    pollData.nftClaimCount++;
+    uint256 voterNumber = pollData.nftClaimCount;
+    string memory pollName = pollData.question;
+    uint256 voteTimestamp = block.timestamp;
+
+    _nft.mint(msg.sender, pollName, voterNumber, voteTimestamp);
+
+    pollData.userVotes[msg.sender].hasClaimedNFT = true;
+}
+
   
 
 }

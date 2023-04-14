@@ -258,6 +258,17 @@ export const PollProvider = ({ children }) => {
     const voteCount = await pollContract.getVoteCount(optionIndex);
     return voteCount;
   };
+
+  const claimNFT = async (pollAddress) => {
+    if (!currentAccount || !signer) {
+      throw new Error('User not connected');
+    }
+  
+    const pollContract = new ethers.Contract(pollAddress, Poll.abi, signer);
+    const tx = await pollContract.claimNFT();
+    await tx.wait();
+  };
+  
   
   
 
@@ -287,6 +298,7 @@ export const PollProvider = ({ children }) => {
         getPastPolls,
         getVoteDetails,
         getVoteCount,
+        claimNFT
       }}
     >
       {children}

@@ -14,7 +14,7 @@ const GroupPage = () => {
   const { groupAddress } = router.query;
   const { getGroupDetails, leaveGroup } = useContext(GroupContext);
   const { currentAccount, isValidAddress } = useContext(AuthContext);
-  const { getActivePoll, clearActivePoll, refreshActivePoll, endPoll, vote, hasVoted, getLastPoll, getLastPollWinner, getPollWinner, isPollEnded, getPollDetails } = useContext(PollContext);
+  const { getActivePoll, clearActivePoll, refreshActivePoll, endPoll, vote, hasVoted, getLastPoll, getLastPollWinner, getPollWinner, isPollEnded, getPollDetails, claimNFT } = useContext(PollContext);
   const [userHasVoted, setUserHasVoted] = useState(false);
   const [group, setGroup] = useState(null);
   const [isOwner, setIsOwner] = useState(false);
@@ -149,6 +149,17 @@ const GroupPage = () => {
       setLeavingGroup(false);
     }
   };
+
+  const handleClaimNFT = async () => {
+    try {
+      await claimNFT(activePoll.pollAddress, currentAccount);
+      console.log("NFT claimed successfully");
+    } catch (error) {
+      console.error("Error while claiming NFT:", error);
+    }
+  };
+  
+  
   
   
 
@@ -181,6 +192,9 @@ const GroupPage = () => {
                     <button onClick={() => handleVote(1)}>Vote for Option 2</button>
                   </>
                 )}
+                {userHasVoted && (
+                    <button onClick={handleClaimNFT}>Claim NFT</button>
+                  )}
                 {isOwner && pollEnded && (
                   <button onClick={endPollHandler}>End Poll</button>
                 )}

@@ -9,7 +9,7 @@ export const GroupContext = createContext();
 
 export const GroupProvider = ({ children }) => {
   const { currentAccount } = useContext(AuthContext);
-  const groupFactoryAddress = "0x09E2780737D29219117a030d958821607905e0ce";
+  const groupFactoryAddress = "0xDcB1A5AE786792A71A89326107f01eF97421EF1A";
   const [provider, setProvider] = useState(null);
   const [signer, setSigner] = useState(null);
   const [groupFactoryContract, setGroupFactoryContract] = useState(null);

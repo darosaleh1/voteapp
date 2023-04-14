@@ -21,10 +21,6 @@ contract Group {
     event MemberRemoved(address indexed user, address indexed group);
 
 
-    
-
-
-
     modifier onlyGroupOwner() {
         require(msg.sender == groupOwner, "Caller is not the group owner!");
         _;
@@ -127,10 +123,7 @@ contract Group {
         }
     }
     return (pastPolls, lastPoll);
-}
-
-
-
+    }
 
     function isMember(address _address) public view returns (bool) {
     return members[_address];
