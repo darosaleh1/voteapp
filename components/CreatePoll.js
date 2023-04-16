@@ -30,11 +30,15 @@ const CreatePoll = () => {
       e.preventDefault();
       try {
         await createPoll(groupAddress, question, option1, option2, parseInt(duration) * 60);
-        router.push(`/group/${groupAddress}`);
+        
+        setTimeout(() => {
+          router.push(`/group/${groupAddress}`);
+        }, 3000);
       } catch (error) {
         console.error('Error creating poll:', error);
       }
     };
+    
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', minHeight: '100vh', alignItems: 'center', background: '#0d1b2a' }}>
