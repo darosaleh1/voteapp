@@ -1,13 +1,22 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { GroupContext } from '@/context/GroupContext';
 import { AuthContext } from '@/context/AuthContext';
-import styles from './Groups.module.css';
+import styles from './BrowseGroups.module.css';
+import BrowseGroupCard from './GroupCards/BrowseGroupCard';
 
-const Groups = () => {
+const BrowseGroups = () => {
   const [groups, setGroups] = useState([]);
   const [selectedGroup, setSelectedGroup] = useState(null);
-  const { getAllGroups, getGroupDetails, isMemberOfGroup, joinGroup } = useContext(GroupContext);
+  const { getAllGroups, getGroupDetails, isGroupMember, joinGroup } = useContext(GroupContext);
   const { currentAccount } = useContext(AuthContext);
+
+  const handleGroupJoinClick = (group) => {
+    if (group.isPasswordProtected) {
+      setSelectedGroup(group);
+    } else {
+      handleJoinGroup(null, group.address);
+    }
+  };
 
   useEffect(() => {
     const fetchGroups = async () => {
@@ -15,7 +24,7 @@ const Groups = () => {
       const groups = await Promise.all(
         groupAddresses.map(async (address) => {
           const details = await getGroupDetails(address);
-          const isMember = await isMemberOfGroup(address, currentAccount);
+          const isMember = await isGroupMember(address, currentAccount);
           return {
             address,
             groupName: details.groupName,
@@ -32,29 +41,12 @@ const Groups = () => {
     }
   }, [currentAccount]);
 
-  const renderJoinButton = (group) => {
-    if (!group.isMember) {
-      return (
-        <button
-          onClick={(e) => {
-            e.preventDefault(); // Add this line to prevent the default action
-            if (group.isPasswordProtected) {
-              setSelectedGroup(group);
-            } else {
-              handleJoinGroup(null, group.address);
-            }
-          }}
-        >
-          Join
-        </button>
-      );
-    }
-  };
+  
   
   const handleJoinGroup = async (password, groupAddress) => {
     try {
       const address = groupAddress || selectedGroup.address;
-      await joinGroup(address, password || '', currentAccount); // Add the '||' operator to provide an empty string as the default value
+      await joinGroup(address, password || '', currentAccount); 
       setSelectedGroup(null);
       alert('Successfully joined the group!');
     } catch (error) {
@@ -95,21 +87,16 @@ const Groups = () => {
   return (
     <div>
       <h1>All Groups</h1>
-      <ul>
-        {groups.map((group, index) => (
-          <li key={index}>
-            Name: {group.groupName}, Address: {group.address}, Members: {group.memberCount}, Type:{" "}
-            {group.isPasswordProtected ? "Private" : "Public"}
-            {renderJoinButton(group)}
-          </li>
+      <div>
+        {groups.map((group) => (
+          <BrowseGroupCard key={group.address} group={group} onJoin={handleGroupJoinClick} />
         ))}
-      </ul>
+      </div>
       <PasswordModal />
     </div>
   );
 };
-
-export default Groups;
+export default BrowseGroups;
 
 
 

@@ -1,13 +1,13 @@
 import React from 'react';
-import Groups from '@/components/Groups';
+import BrowseGroups from '@/components/BrowseGroups';
 
 
-const BrowseGroups = () => {
+const BrowseGroupsPage = () => {
   return (
     <div>
-        <Groups/>
+        <BrowseGroups/>
     </div>
   );
 };
 
-export default BrowseGroups;
+export default BrowseGroupsPage;

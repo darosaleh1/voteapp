@@ -1,4 +1,3 @@
-// components/Navbar.js
 import React, { useContext } from 'react';
 import { AuthContext } from '@/context/AuthContext';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -7,7 +6,7 @@ import styles from './Navbar.module.css';
 import { useRouter } from 'next/router';
 
 const Navbar = () => {
-  const { currentAccount, logout } = useContext(AuthContext);
+  const { currentAccount } = useContext(AuthContext);
   const router = useRouter();
 
   const goToCreateGroupPage = () => {
@@ -36,9 +35,6 @@ const Navbar = () => {
             <button className={styles.createGroupButton} onClick={goToCreateGroupPage}>
               <FontAwesomeIcon icon={faPlus} />
               Create Group
-            </button>
-            <button className={styles.logoutButton} onClick={logout}>
-              Logout
             </button>
           </>
         )}

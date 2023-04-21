@@ -1,7 +1,6 @@
-// components/GroupLayout.js
 import React from 'react';
 import Sidebar from '@/components/Sidebar';
-import styles from '@/components/GroupLayout.module.css';
+import styles from '@/components/GroupPageCom/GroupLayout.module.css';
 
 const GroupLayout = ({ children, isOwner, onCreatePoll, showCreatePoll }) => {
   return (

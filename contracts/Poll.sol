@@ -16,7 +16,6 @@ contract Poll {
         mapping(uint256 => VoteDetails[]) voteDetails;
         bool hasEnded;
         address creator;
-        uint256 duration;
         address groupAddress;
         uint256 nftClaimCount;
     }
@@ -43,7 +42,6 @@ contract Poll {
         pollData.option1 = _option1;
         pollData.option2 = _option2;
         pollData.groupAddress = _groupAddress;
-        pollData.duration = _duration;
         _nft = new VotedNFT();
 
 
@@ -70,10 +68,12 @@ contract Poll {
     }
 
     function vote(uint256 _optionIndex) public {
+        require(msg.sender != IGroup(pollData.groupAddress).groupOwner(), "Group owner cannot vote!");
         require(IGroup(pollData.groupAddress).isMember(msg.sender), "Caller is not a group member!");
-        require(!pollData.hasEnded, "The poll has ended!");
+        require(block.timestamp < pollData.endTime, "The poll has reached its end time!");
         require(!pollData.userVotes[msg.sender].hasVoted, "You have already voted!");
         require(_optionIndex < 2, "Invalid option!");
+        
 
         pollData.userVotes[msg.sender].optionIndex = _optionIndex;
         pollData.userVotes[msg.sender].hasVoted = true;
@@ -134,10 +134,11 @@ contract Poll {
         return pollData.votes[_optionIndex];
     }
 
-    function getUserVote(address _voterAddress) public view returns (uint256, bool) {
+    function getUserVote(address _voterAddress) public view returns (Vote memory) {
         Vote memory userVote = pollData.userVotes[_voterAddress];
-        return (userVote.optionIndex, userVote.hasVoted);
+        return userVote;
     }
+
 
    function getWinner() public view returns (string memory) {
         require(pollData.hasEnded, "The poll has not ended yet!");

@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { GroupContext } from '@/context/GroupContext';
 
 const ManageGroup = () => {
-  const { getAllMembers, getGroupOwner, removeMember, transferOwnership } = useContext(GroupContext); // Add transferOwnership here
+  const { getAllMembers, getGroupOwner, removeMember, transferOwnership } = useContext(GroupContext);
   const [members, setMembers] = useState([]);
   const [owner, setOwner] = useState("");
   const router = useRouter();

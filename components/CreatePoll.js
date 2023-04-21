@@ -4,7 +4,7 @@ import Button from '@mui/material/Button';
 import Box from '@mui/material/Box';
 import { PollContext } from '@/context/PollContext';
 import { styled } from '@mui/system';
-import { useRouter } from 'next/router'; // Import useRouter
+import { useRouter } from 'next/router'; 
 
 const CreatePollButton = styled(Button)(({ theme }) => ({
   backgroundColor: '#0d1b2a',

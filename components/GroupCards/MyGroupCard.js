@@ -1,9 +1,8 @@
-// components/GroupCard.js
 import React from 'react';
 import Link from 'next/link';
-import styles from './GroupCard.module.css';
+import styles from './MyGroupCard.module.css';
 
-const GroupCard = ({ group }) => {
+const MyGroupCard = ({ group }) => {
   const { groupName, memberCount, groupAddress } = group;
 
   return (
@@ -18,6 +17,6 @@ const GroupCard = ({ group }) => {
   );
 };
 
-export default GroupCard;
+export default MyGroupCard;
 
 

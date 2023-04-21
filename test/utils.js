@@ -1,13 +1,9 @@
 const { ethers } = require("hardhat");
 
-async function deployGroupFactory() {
-  const GroupFactory = await ethers.getContractFactory("GroupFactory");
-  return await GroupFactory.deploy();
+async function increaseTime(seconds) {
+  await ethers.provider.send("evm_increaseTime", [seconds]);
+  await ethers.provider.send("evm_mine", []);
 }
-
-const hashedPassword = ethers.utils.keccak256(ethers.utils.toUtf8Bytes("test-password"));
-
 module.exports = {
-  deployGroupFactory,
-  hashedPassword,
+  increaseTime,
 };

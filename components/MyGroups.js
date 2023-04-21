@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { GroupContext } from '@/context/GroupContext';
 import { AuthContext } from '@/context/AuthContext';
-import GroupCard from './GroupCard';
+import MyGroupCard from './GroupCards/MyGroupCard';
 
 const MyGroups = () => {
   const { currentAccount } = useContext(AuthContext);
@@ -40,7 +40,7 @@ const MyGroups = () => {
           <div style={loadingStyle}>Loading...</div>
         ) : (
           myGroups.map((group, index) => (
-            <GroupCard key={index} group={group} />
+            <MyGroupCard key={index} group={group} />
           ))
         )}
       </div>

@@ -42,12 +42,7 @@ contract Group {
         }
     }
 
-    function clearActivePoll() public {
-        require(activePoll != address(0), "No active poll");
-        require(Poll(activePoll).hasEnded(), "Poll is still active");
-        activePoll = address(0);
-    }
-
+   
     function joinGroup(bytes32 _hashedPassword) public {
         if (isGroupPrivate) {
             require(checkPassword(_hashedPassword), "Incorrect Password!");
@@ -102,12 +97,19 @@ contract Group {
 
     }
 
+     function clearActivePoll() public {
+        require(activePoll != address(0), "No active poll");
+        require(Poll(activePoll).hasEnded(), "Poll is still active");
+        activePoll = address(0);
+    }
+
     function getActivePoll() public view returns (address) {
         return activePoll;
     }
 
    function getPastPolls() public view returns (address[] memory, address) {
     if (polls.length == 0) {
+
         return (new address[](0), address(0));
     }
 

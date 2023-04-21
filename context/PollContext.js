@@ -7,26 +7,9 @@ import Poll from '@/artifacts/contracts/Poll.sol/Poll.json';
 export const PollContext = createContext();
 
 export const PollProvider = ({ children }) => {
-  const { currentAccount } = useContext(AuthContext);
-
-  const [provider, setProvider] = useState(null);
-  const [signer, setSigner] = useState(null);
-
-  const isBrowser = typeof window !== 'undefined';
+  const { currentAccount, signer, provider } = useContext(AuthContext);
 
 
-  useEffect(() => {
-    if (isBrowser) {
-      if (typeof window.ethereum === 'undefined') {
-        throw new Error('MetaMask not found, please install it from metamask.io');
-      }
-      const web3Provider = new ethers.providers.Web3Provider(window.ethereum);
-      setProvider(web3Provider);
-      if (currentAccount) {
-        setSigner(web3Provider.getSigner());
-      }
-    }
-  }, [currentAccount]);
 
   const createPoll = async (groupAddress, question, option1, option2, duration) => {
     if (!currentAccount || !signer) {
@@ -36,9 +19,6 @@ export const PollProvider = ({ children }) => {
     const groupContract = new ethers.Contract(groupAddress, Group.abi, signer);
     const tx = await groupContract.createPoll(question, option1, option2, duration);
     await tx.wait();
-  console.log("Poll duration (seconds):", duration);
-  console.log("Poll creation time:", new Date().getTime());
-  console.log("Expected poll end time:", new Date().getTime() + duration * 1000);
   };
 
   const getPollDetails = async (pollAddress) => {
@@ -57,7 +37,7 @@ export const PollProvider = ({ children }) => {
       question,
       option1,
       option2,
-      endTime: ethers.BigNumber.from(endTime).toNumber(), // In seconds
+      endTime: ethers.BigNumber.from(endTime).toNumber(),
     };
   }
 
@@ -76,13 +56,12 @@ export const PollProvider = ({ children }) => {
   
     const pollContract = new ethers.Contract(pollAddress, Poll.abi, signer);
     const tx = await pollContract.vote(optionIndex);
-    const receipt = await tx.wait(); // Wait for the transaction to be mined
+    const receipt = await tx.wait(); 
   
-    const transactionId = receipt.transactionHash; // Get the transaction hash from the receipt
+    const transactionId = receipt.transactionHash;
   
-    // Call the updateTransactionId function with the transaction hash
     const updateTx = await pollContract.updateTransactionId(transactionId);
-    await updateTx.wait(); // Wait for the updateTransactionId transaction to be mined
+    await updateTx.wait();
   };
   
 
@@ -90,19 +69,19 @@ export const PollProvider = ({ children }) => {
     if (!currentAccount || !signer) {
       throw new Error('User not connected');
     }
-
+  
     const pollContract = new ethers.Contract(pollAddress, Poll.abi, provider);
-    const [optionIndex, hasVoted] = await pollContract.getUserVote(currentAccount);
-
-    return { optionIndex, hasVoted };
+    const userVote = await pollContract.getUserVote(currentAccount);
+  
+    return {optionIndex: userVote.optionIndex, hasVoted: userVote.hasVoted, claimedNFT: userVote.claimedNFT};
   };
+  
 
   const getActivePoll = async (groupAddress) => {
     try {
       const groupContract = new ethers.Contract(groupAddress, Group.abi, signer);
       const activePollAddress = await groupContract.getActivePoll();
   
-      // Check if activePollAddress is a valid Ethereum address
       if (ethers.utils.isAddress(activePollAddress) && activePollAddress !== ethers.constants.AddressZero) {
         const activePoll = await getPollDetails(activePollAddress);
         const endTime = activePoll.endTime;
@@ -116,9 +95,6 @@ export const PollProvider = ({ children }) => {
     }
     return null;
   };
-  
-  
-  
   
 
   const clearActivePoll = async (groupAddress) => {
@@ -179,15 +155,12 @@ export const PollProvider = ({ children }) => {
     try {
       const groupContract = getGroupContract(groupAddress);
       const [, lastPoll] = await groupContract.getPastPolls();
-      console.log("Last poll address:", lastPoll);
       return lastPoll;
     } catch (error) {
       console.error("Error while fetching the last poll:", error);
       return null;
     }
   };
-  
-
   
 
   const getLastPollWinner = async (groupAddress) => {
@@ -269,13 +242,6 @@ export const PollProvider = ({ children }) => {
     await tx.wait();
   };
   
-  
-  
-
-
-  
-  
-
 
   return (
     <PollContext.Provider

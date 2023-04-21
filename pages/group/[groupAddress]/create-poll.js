@@ -1,7 +1,7 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import CreatePoll from '@/components/CreatePoll';
-import GroupLayout from '@/components/GroupLayout';
+import GroupLayout from '@/components/GroupPageCom/GroupLayout';
 
 const CreatePollPage = () => {
   const router = useRouter();

@@ -1,9 +1,7 @@
-// pages/index.js
-
 import React from 'react';
 import LandingPage from '../components/LandingPage';
 
-const Home = () => {
+const Landing = () => {
   return (
     <div className="App">
       <LandingPage />
@@ -11,6 +9,6 @@ const Home = () => {
   );
 };
 
-export default Home;
+export default Landing;
 
   
